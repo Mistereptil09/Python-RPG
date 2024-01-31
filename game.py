@@ -189,3 +189,6 @@ if __name__ == "__main__":
     print(f"{WHITE}{joueur.nom} a maintenant {GREEN}{joueur.pv} PV.")
     print(f"\nMerci d'avoir joué {joueur.nom} ! ")
     print(f"\nVotre score : {joueur.points}\nVotre niveau : {niveau} {joueur.experience}" + RESET)
+    continuer = input("Souhiatez vous continuer ? (oui)")
+    if continuer == "oui":
+        joueur.vivant = True
