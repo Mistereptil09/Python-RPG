@@ -1,17 +1,18 @@
-# Importation du module random pour générer des nombres aléatoires
 import random
+from colorama import init, Fore, Style
 
-# Création des variables pour les couleurs de texte avec des codes ANSI
-RESET = "\033[0m"
-RED = "\033[91m"
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-BLUE = "\033[94m"
-MAGENTA = "\033[95m"
-CYAN = "\033[96m"
-WHITE = "\033[97m"
+init()
 
-# Création de la classe "Personnage" pour représenter les personnages du jeu
+RESET = Style.RESET_ALL
+RED = Fore.RED
+GREEN = Fore.GREEN
+YELLOW = Fore.YELLOW
+BLUE = Fore.BLUE
+MAGENTA = Fore.MAGENTA
+CYAN = Fore.CYAN
+WHITE = Fore.WHITE
+
+
 class Personnage:
     def __init__(self, nom, attaque, pv, defense, esquive, experience, points, vivant):
         self.nom = nom
@@ -23,138 +24,168 @@ class Personnage:
         self.points = points
         self.vivant = vivant
 
-# Fonction pour créer tous les personnages du jeu à partir de l'objet "Personnage"
+
 def initialiser_personnages():
-    nom = input(WHITE + "Entrez le nom de votre personnage : " + RESET)
-    joueur = Personnage(nom=nom, attaque=20, pv=100, defense=15, esquive=15, experience=0, points=0, vivant=True)
+    nom = input("Entrez le nom de votre personnage : ")
+    joueur = Personnage(nom=nom, attaque=20, pv=100, defense=20, esquive=15, experience=0, points=0, vivant=True)
     gobelin = Personnage(nom="gobelin", attaque=10, pv=50, defense=5, esquive=25, experience=20, points=10, vivant=True)
     troll = Personnage(nom="troll", attaque=25, pv=100, defense=10, esquive=0, experience=40, points=20, vivant=True)
     return joueur, gobelin, troll
 
-# Fonction pour la partie calcul de dégâts avec un attaquant et sa cible
-# Fonction pour attaquer un ennemi
-def attaquer(attaquant, cible, niveau, ennemis):
+
+def attaquer(attaquant, cible, ennemis):
     precision = random.randint(1, 100)
-    print(WHITE + "Précision : " + str(precision))
+    print(f"\n{WHITE}Précision :{RESET} {precision}")
+    print(f"{YELLOW}{attaquant.nom} attaque {cible.nom}")
+    degats_aleatoire = random.randint(1, 10)
+    print(f"{WHITE}Le monde décide que l'attaque effectue {YELLOW}{degats_aleatoire} degats supplémentaires !")
 
     if precision > cible.esquive and attaquant.vivant:
-        degats = attaquant.attaque - cible.defense
+        degats = attaquant.attaque - cible.defense + degats_aleatoire
         if degats <= 0:
-            print(YELLOW + "L'attaque n'a pas causé de dégâts !")
+            print(f"{YELLOW}L'attaque n'a pas causé de dégâts !")
         elif precision >= 90:
             degats *= 2
             cible.pv -= degats
-            print(RED + f"{cible.nom} subit un coup critique de {degats} dégâts.")
+            print(f"{RED}{cible.nom} subit un coup critique de {degats} dégâts.")
         else:
             cible.pv -= degats
-            print(WHITE + f"{cible.nom} subit {RED}{degats} dégâts.")
+            print(f"{WHITE}{cible.nom} subit {RED}{degats} dégâts.")
 
         if cible.pv <= 0:
             cible.vivant = False
             if cible in ennemis:
                 ennemis.remove(cible)
-                print(GREEN + f"\nL'attaque a achevé {cible.nom} !")
-                print(WHITE + f"Votre expérience a augmenté de {BLUE}{cible.experience} points")
-                print(WHITE + f"Votre score a augmenté de {BLUE}{cible.points} points")
+                print(f"{GREEN}\nL'attaque a achevé {cible.nom} !")
+                print(f"{WHITE}Votre expérience a augmenté de {BLUE}{cible.experience} points")
+                print(f"{WHITE}Votre score a augmenté de {BLUE}{cible.points} points")
                 attaquant.experience += cible.experience
                 attaquant.points += cible.points
-                augmenter_niveau(niveau)
         else:
-            print(WHITE + f"{cible.nom} a maintenant {GREEN}{cible.pv} PV." + RESET)
+            print(f"{WHITE}{cible.nom} a maintenant {GREEN}{cible.pv} PV." + RESET)
     else:
-        print(YELLOW + f"{cible.nom} n'a pas été touché" + RESET)
+        print(f"{YELLOW}{cible.nom} n'a pas été touché" + RESET)
 
 
-# Fonction pour augmenter le niveau et les statistiques du joueur avec une variable expérience
 def augmenter_niveau(niveau):
     if joueur.experience >= niveau * 20:
         niveau += 1
-        print(MAGENTA + "\nVous êtes monté de niveau ! \nVous êtes niveau " + str(niveau) + " !")
+        print(f"{MAGENTA}\nVous êtes monté de niveau ! \nVous êtes niveau {niveau} !")
         joueur.experience -= niveau * 20
-        print(WHITE + "Il vous manque " + str(niveau * 20) + " XP jusqu'au prochain niveau !")
-        print(CYAN + "Vos statistiques avant le gain de niveau :\n" + "Attaque : " + str(joueur.attaque) + "\n" +
-              "Défense : " + str(joueur.defense) + "\n" + "PV : " + str(joueur.pv) + "\n" +
-              "Taux d'esquive : " + str(joueur.esquive) + "%")
+        print(f"{WHITE}Il vous manque {niveau * 20} XP jusqu'au prochain niveau !")
+        print(f"{CYAN}Vos statistiques avant le gain de niveau :\nAttaque : {joueur.attaque}\n" +
+              f"Défense : {joueur.defense}\nPV : {joueur.pv}\nTaux d'esquive : {joueur.esquive}%")
 
-        #fait les caluls pour augmenter les statistiques du joueur
-        joueur.attaque += niveau * 5 - 5
-        joueur.defense += niveau * 4 - 4
-        joueur.pv += 100 + niveau * 20 - 20
-        joueur.esquive += niveau * 2 - 2
+        joueur.attaque = niveau * 5 + 15
+        joueur.defense = niveau * 4 + 11
+        joueur.pv = niveau * 20 + 80
+        joueur.esquive = niveau * 2 + 13
         if joueur.esquive > 60:
+            print(f"{CYAN} Vous avez atteint l'esquive maximale (60 %)")
             joueur.esquive = 60
-        print(CYAN + "\nVos statistiques après le gain de niveau :\n" + "Attaque : " + str(joueur.attaque) + "\n" +
-              "Défense : " + str(joueur.defense) + "\n" + "PV : " + str(joueur.pv) + "\n" +
-              "Taux d'esquive : " + str(joueur.esquive) + "%\n" + RESET)
+        print(f"{CYAN}\nVos statistiques après le gain de niveau :\nAttaque : {joueur.attaque}\n" +
+              f"Défense : {joueur.defense}\nPV : {joueur.pv}\nTaux d'esquive : {joueur.esquive}%\n" + RESET)
         return niveau, joueur
 
-# Fonction pour générer des ennemis en fonction du niveau
+
+def creer_ennemi(nom, compteur, niveau):
+    attaque_random = random.randint(-2, 2)  # Ajout d'une petite variabilité
+    pv_random = random.randint(-5, 5)
+    defense_random = random.randint(-1, 1)
+    esquive_random = random.randint(-2, 2)
+
+    if nom == "gobelin":
+        attaque = attaque_random + 8 + niveau * 2
+        pv = pv_random + 40 + niveau * 10
+        defense = defense_random + 4 + niveau * 1
+        esquive = esquive_random + 23 + niveau * 2
+        points = 10
+        experience = 20
+
+    elif nom == "troll":
+        attaque = attaque_random + 8 + niveau * 2
+        pv = pv_random + 40 + niveau * 10
+        defense = defense_random + 4 + niveau * 1
+        esquive = esquive_random + 23 + niveau * 2
+        points = 20
+        experience = 40
+
+    else:
+        attaque = 0
+        pv = 0
+        defense = 0
+        esquive = 0
+        points = 0
+        experience = 0
+
+    return Personnage(nom=f"{nom} {compteur} niveau {niveau}", attaque=attaque, pv=pv, defense=defense, esquive=esquive,
+                      experience=experience, points=points, vivant=True)
+
+
 def generer_ennemis(niveau, ennemis, compteur_goblin=0, compteur_troll=0):
-    if len(ennemis) < niveau:
-        for i in range(niveau):
+    if len(ennemis) <= niveau:
+        for i in range(0, niveau):
             choix = random.randint(1, 2)
             if choix == 1:
                 compteur_goblin += 1
-                gobelin = Personnage(nom="gobelin " + str(compteur_goblin), attaque=10, pv=50, defense=5, esquive=25, experience=20, points=10, vivant=True)
+                gobelin = creer_ennemi(f"gobelin", compteur_goblin, niveau)
                 ennemis.append(gobelin)
-                print(WHITE + "Les statistiques de " + str(gobelin.nom) + ":\n" +
-                      "Attaque : " + str(gobelin.attaque) + "\n" + "Défense : " + str(gobelin.defense) + "\n" +
-                      "PV Max : " + str(gobelin.pv) + "\n" + "Taux d'esquive : " + str(gobelin.esquive) + "%")
+                print(f"{RESET}Les statistiques de {gobelin.nom} :\n" +
+                      f"Attaque : {gobelin.attaque}\nDéfense : {gobelin.defense}\n" +
+                      f"PV Max : {gobelin.pv}\nTaux d'esquive : {gobelin.esquive}%{WHITE}")
             if choix == 2:
                 compteur_troll += 1
-                troll = Personnage(nom="troll " + str(compteur_troll), attaque=25, pv=100, defense=10, esquive=0, experience=40, points=20, vivant=True)
+                troll = creer_ennemi(f"troll", compteur_troll, niveau)
                 ennemis.append(troll)
-                print(WHITE + "Les statistiques de " + str(troll.nom) + ":\n" +
-                      "Attaque : " + str(troll.attaque) + "\n" + "Défense : " + str(troll.defense) + "\n" +
-                      "PV Max : " + str(troll.pv) + "\n" + "Taux d'esquive : " + str(troll.esquive) + "%")
-            print("Vous avez " + str(len(ennemis)) + " ennemi !")
+                print(f"{RESET}Les statistiques de {troll.nom} :\n" +
+                      f"Attaque : {troll.attaque}\nDéfense : {troll.defense}\n" +
+                      f"PV Max : {troll.pv}\nTaux d'esquive : {troll.esquive}%{WHITE}")
+            print(f"{RESET}Vous avez {len(ennemis)} ennemi !{WHITE}")
     return ennemis
 
-# Bloc principal du programme
+
 if __name__ == "__main__":
     joueur, gobelin, troll = initialiser_personnages()
     niveau = 1
     experience = 0
     score = 0
     ennemis = []
+    print("Bienvenue dans ce jeu ! \nL'objectif est de survivre aussi longtemps que possible face aux monstres qui"
+          "seront de plus en plus nombreux !\nMais pas d'inquiétude en vaiquant des énemis vous gagnerez en expérince"
+          "ainsi qu'en niveaux.\nMalheuresement les monstres se renforce et suivent également votre progression !"
+          f"\n Bonne chance {GREEN}{joueur.nom} !\n")
+    print(f"{CYAN}Vos statistiques de départ :\nAttaque : {joueur.attaque}\n" +
+          f"Défense : {joueur.defense}\nPV Max : {joueur.pv}\n" +
+          f"Taux d'esquive : {joueur.esquive}%\n" + RESET)
+    ennemis = generer_ennemis(niveau, ennemis)
 
-    # Affichage des statistiques initiales du joueur
-    print(CYAN + "Vos statistiques de départ :\n" + "Attaque : " + str(joueur.attaque) + "\n" +
-          "Défense : " + str(joueur.defense) + "\n" + "PV Max : " + str(joueur.pv) + "\n" +
-          "Taux d'esquive : " + str(joueur.esquive) + "%\n")
-
-    # Boucle principale du jeu
     while joueur.vivant:
-        ennemis = generer_ennemis(niveau, ennemis)
+        choix = True
+        while choix:
+            choix = input(f"{RESET}Choisissez un ennemi à attaquer entre 1 et {len(ennemis)} "
+                          f"(ou tapez 'quitter' pour quitter) : \n{WHITE}")
 
-        # Boucle pour choisir et attaquer un ennemi
-        while True:
-            choix = input(WHITE + "Choisissez un ennemi à attaquer entre 1 et " + str(
-                len(ennemis)) + " (ou tapez 'non' pour quitter) : \n")
-
-            if choix.lower() == "non":
+            if choix.lower() == "quitter":
                 joueur.vivant = False
                 break
 
             try:
                 choix = int(choix)
                 if 1 <= choix <= len(ennemis):
-                    attaquer(joueur, ennemis[choix - 1], niveau, ennemis)
+                    attaquer(joueur, ennemis[choix - 1], ennemis)
                     break
                 else:
-                    print(WHITE + "Choix invalide. Veuillez choisir un ennemi valide.")
+                    print(f"{WHITE}Choix invalide. Veuillez choisir un ennemi valide.")
             except ValueError:
-                print(WHITE + "Veuillez entrer un nombre entier (ou 'non').")
+                print(f"{WHITE}Veuillez entrer un nombre entier (ou 'quitter').")
 
-        # Attaque de tous les ennemis restants sur le joueur
         for i in range(len(ennemis)):
-            attaquer(ennemis[i], joueur, niveau, ennemis)
-        # Si tous les ennemis ont été vaincus, en générer de nouveaux
+            attaquer(ennemis[i], joueur, ennemis)
+
         if len(ennemis) == 0:
+            niveau, joueur = augmenter_niveau(niveau)
             ennemis = generer_ennemis(niveau, ennemis)
 
-    # Affichage des statistiques finales du joueur
-    print(WHITE + joueur.nom + " a maintenant " + GREEN + str(joueur.pv) + " PV.")
-    print("\nMerci d'avoir joué " + joueur.nom + " ! ")
-    print("\nVotre score : " + str(joueur.points) + "\nVotre niveau : " + str(niveau) + RESET)
-
+    print(f"{WHITE}{joueur.nom} a maintenant {GREEN}{joueur.pv} PV.")
+    print(f"\nMerci d'avoir joué {joueur.nom} ! ")
+    print(f"\nVotre score : {joueur.points}\nVotre niveau : {niveau} {joueur.experience}" + RESET)
