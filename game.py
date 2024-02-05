@@ -159,8 +159,6 @@ if __name__ == "__main__":
     # Initialisation des personnages et des variables de jeu
     joueur, gobelin, troll = initialiser_personnages()
     niveau = 1
-    experience = 0
-    score = 0
     ennemis = []
 
     # Message d'accueil
